@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Model Drawing & Animation</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <div id="loading-indicator" class="loading-indicator">
+        <div class="spinner"></div>
+        <p>Loading model...</p>
+    </div>
+
+    <div id="animation-status" class="animation-status hidden">
+        <span class="pulse"></span>
+        <span>Animation Playing</span>
+    </div>
+
+    <div id="debug-overlay" class="debug-overlay hidden">
+        <div class="debug-content">
+            <h3>Debug Info</h3>
+            <div class="debug-item">
+                <strong>Intersections:</strong> <span id="debug-intersections">-</span>
+            </div>
+            <div class="debug-item">
+                <strong>Mesh:</strong> <span id="debug-mesh">-</span>
+            </div>
+            <div class="debug-item">
+                <strong>UV Coords:</strong> <span id="debug-uv">-</span>
+            </div>
+            <div class="debug-item">
+                <strong>Canvas Coords:</strong> <span id="debug-canvas">-</span>
+            </div>
+            <div class="debug-item">
+                <strong>3D Position:</strong> <span id="debug-3d">-</span>
+            </div>
+            <div class="debug-item">
+                <strong>Distance:</strong> <span id="debug-distance">-</span>
+            </div>
+            <div class="debug-item" id="debug-status" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #3a3a3a;">
+                <strong style="color: #ff6b6b;">Status:</strong> <span id="debug-status-text">-</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="canvas-container">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <div class="controls-panel">
+            <h1>De Vlindertuin</h1>
+            
+            <div class="control-group">
+                <label for="progress-bar">Progress</label>
+                <div class="progress-container">
+                    <div id="progress-bar" class="progress-bar">
+                        <div id="progress-fill" class="progress-fill">0%</div>
+                    </div>
+                    <span id="progress-text" class="progress-text">0%</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="brush-size">Brush Size</label>
+                <input type="range" id="brush-size" min="1" max="50" value="10" class="slider">
+                <span id="brush-size-value" class="value-display">10</span>
+            </div>
+
+            <div class="control-group">
+                <label>Kleur</label>
+                <div class="color-palette">
+                    <div class="color-swatch" data-color="#ff4444" style="background-color: #ff4444;" title="Rood"></div>
+                    <div class="color-swatch" data-color="#ff8800" style="background-color: #ff8800;" title="Oranje"></div>
+                    <div class="color-swatch" data-color="#ffd700" style="background-color: #ffd700;" title="Geel"></div>
+                    <div class="color-swatch" data-color="#ffaa00" style="background-color: #ffaa00;" title="Goud"></div>
+                    <div class="color-swatch" data-color="#4ade80" style="background-color: #4ade80;" title="Groen"></div>
+                    <div class="color-swatch" data-color="#8fd3a0" style="background-color: #8fd3a0;" title="Zachtgroen"></div>
+                    <div class="color-swatch" data-color="#3b82f6" style="background-color: #3b82f6;" title="Blauw"></div>
+                    <div class="color-swatch" data-color="#60d5fa" style="background-color: #60d5fa;" title="Lichtblauw"></div>
+                    <div class="color-swatch" data-color="#a855f7" style="background-color: #a855f7;" title="Paars"></div>
+                    <div class="color-swatch" data-color="#f472b6" style="background-color: #f472b6;" title="Roze"></div>
+                    <div class="color-swatch" data-color="#ffffff" style="background-color: #ffffff; border: 2px solid #3a3a3a;" title="Wit"></div>
+                    <div class="color-swatch" data-color="#000000" style="background-color: #000000;" title="Zwart"></div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <label for="color-picker" style="font-size: 12px; color: #888;">Of kies je eigen kleur:</label>
+                    <input type="color" id="color-picker" value="#ff4444" class="color-picker">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <button id="fill-btn" class="btn btn-primary">Fill All</button>
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <button id="undo-btn" class="btn btn-secondary" style="flex: 1;">Undo</button>
+                    <button id="redo-btn" class="btn btn-secondary" style="flex: 1;">Redo</button>
+                </div>
+                <button id="background-toggle" class="btn btn-secondary" style="margin-top: 8px;">Toggle Background</button>
+                <button id="start-animation-btn" class="btn btn-primary" style="margin-top: 8px;">Start Animation</button>
+                <button id="reset-btn" class="btn btn-secondary" style="margin-top: 8px;">Reset</button>
+                <button id="debug-toggle" class="btn btn-secondary" style="margin-top: 8px;">Toggle Debug</button>
+                <button id="export-btn" class="btn btn-primary" style="margin-top: 8px;">Export to GLB</button>
+            </div>
+
+            <div class="instructions">
+                <p><strong>Left-click</strong> and drag on the 3D model to paint!</p>
+                <p><strong>Right-click</strong> and drag to rotate the model.</p>
+                <p>Click <strong>"Start Animation"</strong> when you're ready to see the butterfly fly into the scene!</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+
