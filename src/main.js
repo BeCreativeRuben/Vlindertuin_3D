@@ -31,35 +31,20 @@ class Application {
             // Initialize SceneManager
             this.sceneManager = new SceneManager(this.canvas);
 
-            // Load the model and background texture in parallel
+            // Load the model first (priority) - background loads lazily when needed
             const loadingIndicator = document.getElementById('loading-indicator');
             
-            // Load both model and background texture simultaneously
-            const [gltf, backgroundTexture] = await Promise.allSettled([
-                this.sceneManager.loadModel('butterflyflutt.glb'),
-                this.sceneManager.loadBackgroundTexture('byob_achtergrond.png').catch(error => {
-                    console.warn('Failed to load background texture:', error);
-                    return null; // Continue even if background fails
-                })
-            ]);
+            // Load model first (don't wait for background - it's 74MB and loads lazily)
+            const gltf = await this.sceneManager.loadModel('butterflyflutt.glb');
             
-            // Check if model loaded successfully
-            if (gltf.status === 'rejected') {
-                throw gltf.reason;
-            }
-            
-            // Get the loaded GLTF object
-            const loadedGltf = gltf.value;
-            
-            // Background texture is now pre-loaded and ready for animation
-            if (backgroundTexture.status === 'fulfilled' && backgroundTexture.value) {
-                console.log('Background texture pre-loaded successfully');
-            }
-            
-            // Hide loading indicator only after both are loaded
+            // Hide loading indicator after model is loaded (don't wait for background)
             if (loadingIndicator) {
                 loadingIndicator.style.display = 'none';
             }
+            
+            // Background will be loaded lazily when:
+            // 1. User clicks "Toggle Background" button
+            // 2. User starts animation (which triggers background fade-in)
 
             // Initialize systems
             this.drawingSystem = new DrawingSystem(this.sceneManager);
@@ -191,14 +176,17 @@ class Application {
 
         // Background toggle button
         const backgroundToggleBtn = document.getElementById('background-toggle');
-        backgroundToggleBtn.addEventListener('click', () => {
+        backgroundToggleBtn.addEventListener('click', async () => {
             const currentState = this.sceneManager.isBackgroundEnabled();
             const newState = !currentState;
             
-            // Disable button during animation
+            // Disable button during loading/animation
             backgroundToggleBtn.disabled = true;
+            if (newState && !this.sceneManager.backgroundTexture) {
+                backgroundToggleBtn.textContent = 'Loading...';
+            }
             
-            this.sceneManager.toggleBackground(newState, () => {
+            await this.sceneManager.toggleBackground(newState, () => {
                 // Update button text
                 backgroundToggleBtn.textContent = newState ? 'Hide Background' : 'Toggle Background';
                 backgroundToggleBtn.disabled = false;
@@ -316,7 +304,7 @@ class Application {
      * Start animation manually (button click)
      * Sequence: Fly out -> Fade in background -> Fly in -> Start flight path
      */
-    startAnimation() {
+    async startAnimation() {
         if (this.state === 'animating') {
             // Already animating - reset first
             this.animationController.reset();
@@ -334,7 +322,12 @@ class Application {
         const startAnimationBtn = document.getElementById('start-animation-btn');
         if (startAnimationBtn) {
             startAnimationBtn.disabled = true;
-            startAnimationBtn.textContent = 'Animating...';
+            // Show loading state if background needs to be loaded
+            if (!this.sceneManager.backgroundTexture) {
+                startAnimationBtn.textContent = 'Loading background...';
+            } else {
+                startAnimationBtn.textContent = 'Animating...';
+            }
         }
 
         // Disable drawing during animation sequence
@@ -347,10 +340,21 @@ class Application {
         this.sceneManager.animateButterflyFlyOut(() => {
             console.log('Step 1 complete: Butterfly flew out');
             
+            // Update button text if background is loading
+            if (startAnimationBtn && !this.sceneManager.backgroundTexture) {
+                startAnimationBtn.textContent = 'Loading background...';
+            }
+            
             // Step 2: Background swooshes in (canvas swooshes away)
+            // This will load the background lazily if not already loaded
             console.log('Step 2: Canvas swooshing away, background fading in...');
             this.sceneManager.fadeInBackground(() => {
                 console.log('Step 2 complete: Background faded in');
+                
+                // Update button text
+                if (startAnimationBtn) {
+                    startAnimationBtn.textContent = 'Animating...';
+                }
                 
                 // Step 3: Butterfly flies in (same animation as toggle background)
                 console.log('Step 3: Butterfly flying in...');

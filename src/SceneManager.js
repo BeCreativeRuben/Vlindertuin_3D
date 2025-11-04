@@ -464,23 +464,60 @@ export class SceneManager {
     }
 
     /**
+     * Ensure background texture is loaded (lazy loading)
+     * @param {Function} onProgress - Optional progress callback
+     * @param {Function} onComplete - Callback when texture is loaded or already exists
+     */
+    async ensureBackgroundTextureLoaded(onProgress, onComplete) {
+        // If already loaded, call callback immediately
+        if (this.backgroundTexture) {
+            if (onComplete) onComplete();
+            return;
+        }
+        
+        // Show loading indicator if callback provided
+        if (onProgress) {
+            onProgress('Loading background image (74MB)...');
+        }
+        
+        // Load background texture lazily
+        try {
+            console.log('Loading background texture (lazy load)...');
+            await this.loadBackgroundTexture('byob_achtergrond.png');
+            console.log('Background texture loaded successfully');
+            if (onComplete) onComplete();
+        } catch (error) {
+            console.error('Failed to load background texture:', error);
+            if (onComplete) onComplete(); // Continue even if background fails
+        }
+    }
+
+    /**
      * Toggle background image on/off
      * @param {boolean} enabled - Whether to enable background
      * @param {Function} onComplete - Callback when animation completes
      */
-    toggleBackground(enabled, onComplete) {
+    async toggleBackground(enabled, onComplete) {
         this.backgroundEnabled = enabled;
         
-        if (enabled && this.backgroundTexture) {
-            // Set background texture
-            this.scene.background = this.backgroundTexture;
-            
-            // Animate butterfly flying onto background
-            if (this.model && onComplete) {
-                this.animateButterflyFlyIn(onComplete);
-            } else {
-                if (onComplete) onComplete();
-            }
+        if (enabled) {
+            // Ensure background texture is loaded before using it
+            await this.ensureBackgroundTextureLoaded(null, () => {
+                if (this.backgroundTexture) {
+                    // Set background texture
+                    this.scene.background = this.backgroundTexture;
+                    
+                    // Animate butterfly flying onto background
+                    if (this.model && onComplete) {
+                        this.animateButterflyFlyIn(onComplete);
+                    } else {
+                        if (onComplete) onComplete();
+                    }
+                } else {
+                    // Background failed to load, continue without it
+                    if (onComplete) onComplete();
+                }
+            });
         } else {
             // Remove background (back to solid color)
             this.scene.background = this.originalBackground;
@@ -615,11 +652,23 @@ export class SceneManager {
      * Creates a "swoosh" effect where the entire painting canvas disappears
      * @param {Function} onComplete - Callback when animation completes
      */
-    fadeInBackground(onComplete) {
-        if (!this.backgroundTexture) {
-            if (onComplete) onComplete();
-            return;
-        }
+    async fadeInBackground(onComplete) {
+        // Ensure background texture is loaded before swoosh animation
+        await this.ensureBackgroundTextureLoaded(null, () => {
+            if (!this.backgroundTexture) {
+                if (onComplete) onComplete();
+                return;
+            }
+            
+            this.performSwooshAnimation(onComplete);
+        });
+    }
+
+    /**
+     * Perform the actual swoosh animation (called after background is loaded)
+     * @param {Function} onComplete - Callback when animation completes
+     */
+    performSwooshAnimation(onComplete) {
         
         // Set background texture first (will be revealed by swoosh)
         this.scene.background = this.backgroundTexture;
