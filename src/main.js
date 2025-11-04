@@ -36,8 +36,8 @@ class Application {
             
             // Load both model and background texture simultaneously
             const [gltf, backgroundTexture] = await Promise.allSettled([
-                this.sceneManager.loadModel('/butterflyflutt.glb'),
-                this.sceneManager.loadBackgroundTexture('/byob_achtergrond.png').catch(error => {
+                this.sceneManager.loadModel('butterflyflutt.glb'),
+                this.sceneManager.loadBackgroundTexture('byob_achtergrond.png').catch(error => {
                     console.warn('Failed to load background texture:', error);
                     return null; // Continue even if background fails
                 })
