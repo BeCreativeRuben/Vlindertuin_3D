@@ -27,6 +27,9 @@ class Application {
      * Initialize the application
      */
     async init() {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:29',message:'init() started',data:{url:window.location.href,base:document.baseURI,readyState:document.readyState},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         try {
             // Initialize SceneManager
             this.sceneManager = new SceneManager(this.canvas);
@@ -34,8 +37,17 @@ class Application {
             // Load the model first (priority) - background loads lazily when needed
             const loadingIndicator = document.getElementById('loading-indicator');
             
+            // #region agent log
+            const modelPath = 'butterflyflutt.glb';
+            fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:38',message:'Starting model load',data:{modelPath,baseURI:document.baseURI,locationHref:window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
+            
             // Load model first (don't wait for background - it's 74MB and loads lazily)
-            const gltf = await this.sceneManager.loadModel('butterflyflutt.glb');
+            const gltf = await this.sceneManager.loadModel('./butterflyflutt.glb');
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:38',message:'Model loaded successfully',data:{hasGltf:!!gltf,hasAnimations:!!(gltf&&gltf.animations),animationsCount:gltf?.animations?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
             
             // Hide loading indicator after model is loaded (don't wait for background)
             if (loadingIndicator) {
@@ -56,8 +68,12 @@ class Application {
                 this.updateUndoRedoButtons();
             };
 
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:60',message:'Before initializeAnimations',data:{hasGltf:!!gltf,hasLoadedGltf:typeof loadedGltf!=='undefined',gltfType:typeof gltf},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
+
             // Initialize animations
-            this.animationController.initializeAnimations(loadedGltf);
+            this.animationController.initializeAnimations(gltf);
 
             // Setup progress tracking callbacks
             this.progressTracker.setOnProgressUpdate((progress) => {
@@ -88,6 +104,9 @@ class Application {
             this.render();
 
         } catch (error) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:90',message:'Error caught in init()',data:{errorName:error?.name,errorMessage:error?.message,errorStack:error?.stack?.substring(0,500),url:window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             console.error('Error initializing application:', error);
             this.showError('Failed to load model. Please check the console for details.');
         }
@@ -656,11 +675,20 @@ class Application {
 }
 
 // Initialize application when DOM is ready
+// #region agent log
+fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:659',message:'Script loaded',data:{readyState:document.readyState,url:window.location.href,baseURI:document.baseURI,hasCanvas:!!document.getElementById('canvas')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+// #endregion
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:661',message:'DOMContentLoaded fired',data:{url:window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
         new Application();
     });
 } else {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:665',message:'DOM already ready, creating Application',data:{url:window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     new Application();
 }
 

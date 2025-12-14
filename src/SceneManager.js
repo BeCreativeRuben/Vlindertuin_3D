@@ -80,10 +80,16 @@ export class SceneManager {
      * @returns {Promise} Promise that resolves when model is loaded
      */
     async loadModel(modelPath) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SceneManager.js:82',message:'loadModel called',data:{modelPath,baseURI:document.baseURI,locationHref:window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
         return new Promise((resolve, reject) => {
             this.loader.load(
                 modelPath,
                 (gltf) => {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SceneManager.js:86',message:'Model load success callback',data:{modelPath,hasScene:!!gltf?.scene,childrenCount:gltf?.scene?.children?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                    // #endregion
                     this.model = gltf.scene;
                     
                     console.log('=== MODEL LOADED ===');
@@ -172,8 +178,14 @@ export class SceneManager {
                 (progress) => {
                     // Loading progress can be handled here
                     console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+                    // #region agent log
+                    if(progress.loaded===0||progress.loaded===progress.total){fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SceneManager.js:172',message:'Model load progress',data:{loaded:progress.loaded,total:progress.total,percent:progress.total>0?(progress.loaded/progress.total*100).toFixed(1):0,modelPath},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});}
+                    // #endregion
                 },
                 (error) => {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SceneManager.js:176',message:'Model load error',data:{errorMessage:error?.message||String(error),errorType:error?.type||'unknown',modelPath,url:window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                    // #endregion
                     reject(error);
                 }
             );
@@ -483,7 +495,7 @@ export class SceneManager {
         // Load background texture lazily
         try {
             console.log('Loading background texture (lazy load)...');
-            await this.loadBackgroundTexture('byob_achtergrond.png');
+            await this.loadBackgroundTexture('./byob_achtergrond.png');
             console.log('Background texture loaded successfully');
             if (onComplete) onComplete();
         } catch (error) {
