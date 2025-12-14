@@ -43,7 +43,7 @@ class Application {
             // #endregion
             
             // Load model first (don't wait for background - it's 74MB and loads lazily)
-            const gltf = await this.sceneManager.loadModel('./butterflyflutt.glb');
+            const gltf = await this.sceneManager.loadModel('/Vlindertuin_3D/butterflyflutt.glb');
             
             // #region agent log
             fetch('http://127.0.0.1:7242/ingest/184b3a7e-2aa3-442d-abe6-dad9937be2cc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:38',message:'Model loaded successfully',data:{hasGltf:!!gltf,hasAnimations:!!(gltf&&gltf.animations),animationsCount:gltf?.animations?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});

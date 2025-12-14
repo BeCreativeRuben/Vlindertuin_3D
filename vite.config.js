@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: './', // Use relative paths for GitHub Pages compatibility
+  base: '/Vlindertuin_3D/', // GitHub Pages subdirectory path
   server: {
     port: 3000,
     open: true

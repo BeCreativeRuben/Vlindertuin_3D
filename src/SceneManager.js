@@ -495,7 +495,7 @@ export class SceneManager {
         // Load background texture lazily
         try {
             console.log('Loading background texture (lazy load)...');
-            await this.loadBackgroundTexture('./byob_achtergrond.png');
+            await this.loadBackgroundTexture('/Vlindertuin_3D/byob_achtergrond.png');
             console.log('Background texture loaded successfully');
             if (onComplete) onComplete();
         } catch (error) {
